@@ -1,3 +1,5 @@
+-- first: get list of courses and their respective teachers + emails. then, for each course, do the following:
+
 -- files
 select * from (
 --course-level files ("legacy course files")
@@ -25,3 +27,7 @@ where ctx.contextlevel = 70 -- module instances
   ) files
   order by files.courseid asc, cmid asc
 ;
+
+-- now use list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'forum'); from lib/modinfolib.php to obtain coursemodule's name ($cm->name)
+-- use name to augment "filepathinmod"
+-- construct a CSV for deep_doc_class 
