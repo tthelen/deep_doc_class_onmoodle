@@ -78,7 +78,7 @@ foreach ($courses as $cid) {
 	$csvfilename = join('/', array(trim(OUTPUT_PATH, '/'), trim(
 			sprintf(OUTPUT_FILENAME, $cid)
 		, '/')));
-	fopen($csvfilename, 'w+');
+	fopen($csvfilename, 'w');
 
 	fwrite($csvfilename, OUTPUT_CSV_HEADER);
 
