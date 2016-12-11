@@ -74,8 +74,6 @@ foreach ($courses as $cid) {
 	  ) files
 	  order by files.courseid asc, cmid asc', [$cid, $cid]);
 
-	var_dump($files);
-
 	$csvfilename = join_path(OUTPUT_PATH, sprintf(OUTPUT_CSV_FILENAME, $cid));
 	$fpcsv = fopen($csvfilename, 'w');
 	if (!$fpcsv) {
@@ -117,11 +115,12 @@ foreach ($courses as $cid) {
 
 				 )
 			);
+		$h = $file->contenthash;
 		fwrite($fplist,
-			sprintf("%.1s/%.2s/%s\n",
-				$file->contenthash,
-				$file->contenthash,
-				$file->contenthash)
+			sprintf("%s/%s/%s\n",
+				$h[0].$h[1],
+				$h[2].$h[3],
+				$h)
 			);
 	}
 
