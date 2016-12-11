@@ -21,6 +21,10 @@ require_once($CFG->libdir.'/clilib.php');
 
 error_reporting(E_ALL); // TODO remove later
 
+define("OUTPUT_PATH", "/tmp");
+define("OUTPUT_FILENAME", "course_%s.csv");
+define("OUTPUT_CSV_HEADER", "document_id, filename, folder_name, folder_description, description");
+
 /* aim: 
 A metadata csv (comma separated) file containing the following columns (please make sure that the values on the csv have no quotes)
 document_id = unique id of the file which should be the name of the pdf without the '.pdf' extension
@@ -42,6 +46,7 @@ $courses = [2];
 foreach ($courses as $cid) {
 	$currentcourse = get_course($cid);
 
+	// TODO: remove irrelevant columns
 	$files = $DB->get_records_sql('select * from (
 	--course-level files (legacy course files)
 	select 
@@ -70,6 +75,12 @@ foreach ($courses as $cid) {
 
 	var_dump($files);
 
+	$csvfilename = join('/', array(trim(OUTPUT_PATH, '/'), trim(
+			sprintf(OUTPUT_FILENAME, $cid)
+		, '/')));
+	fopen($csvfilename, 'w+');
+
+	fwrite($csvfilename, OUTPUT_CSV_HEADER);
 
 	foreach ($files as $file) {
 		// skip invisible files (TODO: this is debatable!)
@@ -79,24 +90,21 @@ foreach ($courses as $cid) {
 
 		list($course, $cm) = get_course_and_cm_from_cmid($file->cmid, '', $currentcourse, -1);  // "userid -1 avoids user-dependent calculation - we are only interested in names, so whatevs.
 
+		fwrite($csvfilename, 
+			sprintf("%s, %s, %s, [%s] %s, %s\n",
+				$file->contenthash, // document_id,
+				$file->filename, // filename,
+				$cm->name, // folder_name pt 1,
+				$file->filepathinmod, // folder_name pt 2, 
+				$file->component, // folder_description, 
+				"{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]"  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
 
-		$csvlines[] = sprintf("%s, %s, %s, [%s] %s, %s",
-							$file->contenthash, // document_id,
-							$file->filename, // filename,
-							$cm->name, // folder_name pt 1,
-							$file->filepathinmod, // folder_name pt 2, 
-							$file->component, // folder_description, 
-							"{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION."]"  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
-
-							 );
+				 )
+			);
 	}
 
-	var_dump($filesaugmented);
-
-	// TODO: now use list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'forum'); from lib/modinfolib.php to obtain coursemodule's name ($cm->name)
-	// TODO: use name to augment "filepathinmod"
-	// TODO: construct a CSV for deep_doc_class 
-
+	fclose($csvfilename);
+	
 	// (TODO: update $cid as last successful course)
 }
 
