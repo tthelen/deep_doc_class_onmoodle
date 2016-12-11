@@ -22,8 +22,9 @@ require_once($CFG->libdir.'/clilib.php');
 error_reporting(E_ALL); // TODO remove later
 
 define("OUTPUT_PATH", "/tmp");
-define("OUTPUT_FILENAME", "course_%s.csv");
-define("OUTPUT_CSV_HEADER", "document_id, filename, folder_name, folder_description, description");
+define("OUTPUT_CSV_FILENAME", "course_%s.csv");
+define("OUTPUT_LIST_FILENAME", "course_%s_files.txt");
+define("OUTPUT_CSV_HEADER", "document_id, filename, folder_name, folder_description, description\n");
 
 /* aim: 
 A metadata csv (comma separated) file containing the following columns (please make sure that the values on the csv have no quotes)
@@ -50,7 +51,7 @@ foreach ($courses as $cid) {
 	$files = $DB->get_records_sql('select * from (
 	--course-level files (legacy course files)
 	select 
-	c.id as courseid, c.fullname, f.contenthash, f.filename, 1 as "visible", \'legacy\' as "component", 0 as "cmid", \'/\' as "filepathinmod"
+	f.id as fid, c.id as courseid, c.fullname, f.contenthash, f.filename, 1 as "visible", \'legacy\' as "component", 0 as "cmid", \'/\' as "filepathinmod"
 	from {files} f
 	join {context} ctx on ctx.id = f.contextid
 	join {course} c on ctx.instanceid = c.id
@@ -60,8 +61,8 @@ foreach ($courses as $cid) {
 	--;c
 	UNION
 	--module-level files (e.g. new files)
-	select -- f.component, count(*)
-	c.id as courseid, c.fullname, f.contenthash, f.filename, cm.visible, f.component, cm.id as "cmid", f.filepath as "filepathinmod"
+	select 
+	f.id as fid, c.id as courseid, c.fullname, f.contenthash, f.filename, cm.visible, f.component, cm.id as "cmid", f.filepath as "filepathinmod"
 	from {files} f
 	join {context} ctx on ctx.id = f.contextid
 	join {course_modules} cm on ctx.instanceid = cm.id
@@ -75,12 +76,22 @@ foreach ($courses as $cid) {
 
 	var_dump($files);
 
-	$csvfilename = join('/', array(trim(OUTPUT_PATH, '/'), trim(
-			sprintf(OUTPUT_FILENAME, $cid)
-		, '/')));
-	fopen($csvfilename, 'w');
+	$csvfilename = join_path(OUTPUT_PATH, sprintf(OUTPUT_CSV_FILENAME, $cid));
+	$fpcsv = fopen($csvfilename, 'w');
+	if (!$fpcsv) {
+		printf("Could not write to %s.", $csvfilename);
+		continue;
+	}
 
-	fwrite($csvfilename, OUTPUT_CSV_HEADER);
+	$listfilename = join_path(OUTPUT_PATH, sprintf(OUTPUT_LIST_FILENAME, $cid));
+	$fplist = fopen($listfilename, 'w');
+	if (!$fplist) {
+		printf("Could not write to %s.", $listfilename);
+		fclose($fpcsv); // clean up the other.
+		continue;
+	}
+
+	fwrite($fpcsv, OUTPUT_CSV_HEADER);
 
 	foreach ($files as $file) {
 		// skip invisible files (TODO: this is debatable!)
@@ -88,24 +99,41 @@ foreach ($courses as $cid) {
 			continue;
 		}
 
-		list($course, $cm) = get_course_and_cm_from_cmid($file->cmid, '', $currentcourse, -1);  // "userid -1 avoids user-dependent calculation - we are only interested in names, so whatevs.
+		if ($file->cmid == 0) {
+			$name = "Legacy";
+		} else {
+			list($course, $cm) = get_course_and_cm_from_cmid($file->cmid, '', $currentcourse, -1);  // "userid -1 avoids user-dependent calculation - we are only interested in names, so whatevs.
+			$name = $cm->name;
+		}
 
-		fwrite($csvfilename, 
+		fwrite($fpcsv, 
 			sprintf("%s, %s, %s, [%s] %s, %s\n",
 				$file->contenthash, // document_id,
 				$file->filename, // filename,
-				$cm->name, // folder_name pt 1,
+				$name, // folder_name pt 1,
 				$file->filepathinmod, // folder_name pt 2, 
 				$file->component, // folder_description, 
 				"{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]"  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
 
 				 )
 			);
+		fwrite($fplist,
+			sprintf("%.1s/%.2s/%s\n",
+				$file->contenthash,
+				$file->contenthash,
+				$file->contenthash)
+			);
 	}
 
-	fclose($csvfilename);
+	fclose($fpcsv);
+	fclose($fplist);
 	
 	// (TODO: update $cid as last successful course)
 }
-
+function join_path($path, $file) {
+	return join('/', [
+		rtrim($path, '/'),
+		ltrim($file, '/')
+		]);
+}
 
