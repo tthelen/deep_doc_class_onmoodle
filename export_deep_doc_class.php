@@ -41,7 +41,7 @@ another "metadata" file containing names + preferred e-mail of teachers
 */
 
 // TODO obtain courses (maybe starting at "last successful course", see below)
-$courses = [2];
+$courses = [2, 20282];
 
 foreach ($courses as $cid) {
 	$currentcourse = get_course($cid);
