@@ -8,9 +8,10 @@ $ cd MOODLEDIR
 $ php admin/cli/export_deep_doc_class.php
 $ cd MOODLEDATA/filedir
 $ mkdir tmp
+$ cat tmp/course_*_files.txt | xargs -I % cp % tmp
+$ find . -type f -exec mv '{}' '{}'.pdf \;
 $ cp MOODLEDIR/course_*_files.txt tmp
 $ cp MOODLEDIR/course_*.csv tmp
-$ cat tmp/course_*_files.txt | xargs -I % cp % tmp
 $ mv tmp /PATH/TO/DATADIR
 ```
 
