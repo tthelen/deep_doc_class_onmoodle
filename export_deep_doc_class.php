@@ -107,11 +107,11 @@ foreach ($courses as $cid) {
 		fwrite($fpcsv, 
 			sprintf("%s, %s, %s, [%s] %s, %s\n",
 				$file->contenthash, // document_id,
-				$file->filename, // filename,
-				$name, // folder_name pt 1,
-				$file->filepathinmod, // folder_name pt 2, 
-				$file->component, // folder_description, 
-				"{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]"  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
+				csvsanitize($file->filename), // filename,
+				csvsanitize($name), // folder_name pt 1,
+				csvsanitize($file->filepathinmod), // folder_name pt 2, 
+				csvsanitize($file->component), // folder_description, 
+				csvsanitize("{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]")  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
 
 				 )
 			);
@@ -136,3 +136,6 @@ function join_path($path, $file) {
 		]);
 }
 
+function csvsanitize($str) {
+	return str_replace(',', '_', $str);
+}
