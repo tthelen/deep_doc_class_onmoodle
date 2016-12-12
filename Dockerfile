@@ -12,4 +12,3 @@ ENV LC_ALL de_DE.UTF-8
 ADD ./deep_doc_class /deep_doc_class
 WORKDIR /deep_doc_class
 RUN pip3 install -r requirements.txt
-RUN pip3 install -r requirements2.txt
