@@ -20,7 +20,7 @@ Execution of DeepDocClass
 $ docker build -t dagefoerde/odrec_deep_doc_class .
 $ docker run -it  -v /PATH/TO/DATADIR:/tmp/data dagefoerde/odrec_deep_doc_class:latest /bin/bash 
 $ cd src
-$ python3 classify_pdf.py -m /tmp/data/course_2.csv -d /tmp/data 
+$ python3 classify_pdf.py -m /tmp/data/course_2.csv -d /tmp/data -c 2
 ```
 
 Many, many thanks to the people at virtUOS for developing a document classifier!
