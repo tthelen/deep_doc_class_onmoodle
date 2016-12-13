@@ -32,6 +32,6 @@ $ python3 classify_pdf.py -m /tmp/data/course_2.csv -d /tmp/data -c 2
 $ cp -R ../results/ /tmp/data/results
 ```
 
-Now analyse the results outside the docker container at /PATH/TO/DATADIR/results, e.g. have a look at it  using `joinresults.r` in GNU R. Note: DeepDocClass will classify *all* files present in /PATH/TO/DATADIR, although we create per-course metadata CSVs. *TODO*.
+Now analyse the results outside the docker container at `/PATH/TO/DATADIR/results`, e.g. have a look at it  using `joinresults.r` in GNU R. Note: DeepDocClass will classify *all* files present in `/PATH/TO/DATADIR`, although we create per-course metadata CSVs. *TODO*.
 
 
