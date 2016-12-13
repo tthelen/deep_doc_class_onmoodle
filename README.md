@@ -2,6 +2,11 @@
 
 This repository provides a Dockerfile that is used to execute deep_doc_class
 
+Prerequisites
+
+* Install Docker on your machine
+* Copy export_deep_doc_class.php into MOODLEDIR/admin/cli/
+
 Preparation (collect files on Moodle)
 ```bash
 $ cd MOODLEDIR
