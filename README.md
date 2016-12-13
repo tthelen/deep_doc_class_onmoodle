@@ -8,6 +8,8 @@ https://www.virtuos.uni-osnabrueck.de/forschung/projekte/deepdocclass_erkennung_
 ## Prerequisites
 
 * Install Docker on your machine
+* Clone repository
+* Execute `git submodule update --init` inside repository
 * Copy `export_deep_doc_class.php` into `MOODLEDIR/admin/cli/`
 
 ## Preparation (collect files on Moodle)
