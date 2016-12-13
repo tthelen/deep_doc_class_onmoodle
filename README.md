@@ -1,13 +1,16 @@
 # DeepDocClass on Moodle
 
-This repository provides a Dockerfile that is used to execute deep_doc_class
+This repository provides a Dockerfile that is used to execute DeepDocClass, together with some ideas on how to use it with Moodle. Many, many thanks to the people at virtUOS for developing a document classifier!
+More information about DeepDocClass: 
+https://www.virtuos.uni-osnabrueck.de/forschung/projekte/deepdocclass_erkennung_publizierter_texte.html
 
-Prerequisites
+
+## Prerequisites
 
 * Install Docker on your machine
-* Copy export_deep_doc_class.php into MOODLEDIR/admin/cli/
+* Copy `export_deep_doc_class.php` into `MOODLEDIR/admin/cli/`
 
-Preparation (collect files on Moodle)
+## Preparation (collect files on Moodle)
 ```bash
 $ cd MOODLEDIR
 $ php admin/cli/export_deep_doc_class.php
@@ -20,7 +23,7 @@ $ cp MOODLEDIR/course_*.csv tmp
 $ mv tmp /PATH/TO/DATADIR
 ```
 
-Execution of DeepDocClass
+## Execution of DeepDocClass
 ```bash
 $ docker build -t dagefoerde/odrec_deep_doc_class .
 $ docker run -it  -v /PATH/TO/DATADIR:/tmp/data dagefoerde/odrec_deep_doc_class:latest /bin/bash 
@@ -31,6 +34,4 @@ $ cp -R ../results/ /tmp/data/results
 
 Now analyse the results outside the docker container at /PATH/TO/DATADIR/results, e.g. have a look at it  using `joinresults.r` in GNU R. Note: DeepDocClass will classify *all* files present in /PATH/TO/DATADIR, although we create per-course metadata CSVs. *TODO*.
 
-Many, many thanks to the people at virtUOS for developing a document classifier!
-More information about DeepDocClass: 
-https://www.virtuos.uni-osnabrueck.de/forschung/projekte/deepdocclass_erkennung_publizierter_texte.html
+
