@@ -50,8 +50,13 @@ $courses = $DB->get_records_sql('select id from {course} where startdate >= :sta
 foreach ($courses as $course) {
 	$cid = $course->id;
 	$currentcourse = get_course($cid);
+	$ctx = context_course::instance($cid);
+	if (strpos($ctx->path, '/1/47/') === 0) {
+		// Skip courses from the "Schulungsbereich".
+		continue;
+	}
 	// Get number of users enrolled in the course (but count only active ones == "zugriffsberechtigte Personen").
-	$participantscount = count_enrolled_users(context_course::instance($cid), '', 0, true);
+	$participantscount = count_enrolled_users($ctx, '', 0, true);
 
 	// TODO: remove irrelevant columns
 	$files = $DB->get_records_sql('select * from (
