@@ -17,12 +17,14 @@ https://www.virtuos.uni-osnabrueck.de/forschung/projekte/deepdocclass_erkennung_
 $ cd MOODLEDIR
 $ php admin/cli/export_deep_doc_class.php
 $ cd MOODLEDATA/filedir
-$ mkdir tmp
-$ cat tmp/course_*_files.txt | xargs -I % cp % tmp
-$ find . -type f -exec mv '{}' '{}'.pdf \;
+$ mkdir -p tmp/files
 $ cp MOODLEDIR/course_*_files.txt tmp
 $ cp MOODLEDIR/course_*.csv tmp
-$ mv tmp /PATH/TO/DATADIR
+$ cat tmp/course_*_files.txt | xargs -I % cp % tmp/files
+$ find tmp/files -type f -exec mv '{}' '{}'.pdf \;
+$ mv tmp/course_*_files.txt tmp/files
+$ mv tmp/course_*.csv tmp/files
+$ mv tmp/files /PATH/TO/DATADIR
 ```
 
 ## Execution of DeepDocClass
