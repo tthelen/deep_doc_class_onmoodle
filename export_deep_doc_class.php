@@ -19,7 +19,9 @@ define('CLI_SCRIPT', true);
 require(__DIR__.'/../../config.php');
 require_once($CFG->libdir.'/clilib.php');
 
-error_reporting(E_ALL); // TODO remove later
+error_reporting(E_ALL); // TODO maybe remove later
+$CFG->debug = (E_ALL | E_STRICT);
+$CFG->debugdisplay = true;
 
 define("OUTPUT_PATH", "/tmp");
 define("OUTPUT_CSV_FILENAME", "course_%s.csv");
@@ -46,7 +48,7 @@ $startingfrom = 1554069600; // Timestamp of April 1, 2019  0:00 CEST ( == Summer
 $courses = $DB->get_records_sql('select id from {course} where startdate >= :startingfrom', ['startingfrom' => $startingfrom]);
 
 foreach ($courses as $course) {
-	$cid = $course['id'];
+	$cid = $course->id;
 	$currentcourse = get_course($cid);
 
 	// TODO: remove irrelevant columns
@@ -102,8 +104,12 @@ foreach ($courses as $course) {
 		if ($file->cmid == 0) {
 			$name = "Legacy";
 		} else {
-			list($course, $cm) = get_course_and_cm_from_cmid($file->cmid, '', $currentcourse, -1);  // "userid -1 avoids user-dependent calculation - we are only interested in names, so whatevs.
-			$name = $cm->name;
+			try {
+				list($course, $cm) = get_course_and_cm_from_cmid($file->cmid, '', $currentcourse, -1);  // "userid -1 avoids user-dependent calculation - we are only interested in names, so whatevs.
+				$name = $cm->name;
+			} catch (\moodle_exception $e) {
+				$name = "No course module";
+			}
 		}
 
 		fwrite($fpcsv, 
