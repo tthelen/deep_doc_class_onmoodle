@@ -41,10 +41,12 @@ another "metadata" file containing names + preferred e-mail of teachers
 (can we combine all e-mails per teacher?)
 */
 
-// TODO obtain courses (maybe starting at "last successful course", see below)
-$courses = [2, 20282];
+// obtain courses (maybe starting at "last successful course", see below)
+$startingfrom = 1554069600; // Timestamp of April 1, 2019  0:00 CEST ( == Summer Term 2019)
+$courses = $DB->get_records_sql('select id from {course} where startdate >= :startingfrom', ['startingfrom' => $startingfrom]);
 
-foreach ($courses as $cid) {
+foreach ($courses as $course) {
+	$cid = $course['id'];
 	$currentcourse = get_course($cid);
 
 	// TODO: remove irrelevant columns
