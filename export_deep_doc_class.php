@@ -26,7 +26,7 @@ $CFG->debugdisplay = true;
 define("OUTPUT_PATH", "/tmp");
 define("OUTPUT_CSV_FILENAME", "course_%s.csv");
 define("OUTPUT_LIST_FILENAME", "course_%s_files.txt");
-define("OUTPUT_CSV_HEADER", "document_id, filename, folder_name, folder_description, description\n");
+define("OUTPUT_CSV_HEADER", "system, document_id, filename, course_name, folder_name, folder_description, description, participants\n");
 
 /* aim: 
 A metadata csv (comma separated) file containing the following columns (please make sure that the values on the csv have no quotes)
@@ -50,6 +50,8 @@ $courses = $DB->get_records_sql('select id from {course} where startdate >= :sta
 foreach ($courses as $course) {
 	$cid = $course->id;
 	$currentcourse = get_course($cid);
+	// Get number of users enrolled in the course (but count only active ones == "zugriffsberechtigte Personen").
+	$participantscount = count_enrolled_users(context_course::instance($cid), '', 0, true);
 
 	// TODO: remove irrelevant columns
 	$files = $DB->get_records_sql('select * from (
@@ -113,14 +115,15 @@ foreach ($courses as $course) {
 		}
 
 		fwrite($fpcsv, 
-			sprintf("%s, %s, %s, [%s] %s, %s\n",
+			sprintf("Moodle, %s, %s, %s, %s, [%s] %s, %s, %d\n",
 				$file->contenthash, // document_id,
 				csvsanitize($file->filename), // filename,
+				csvsanitize($file->fullname), // course_name,
 				csvsanitize($name), // folder_name pt 1,
 				csvsanitize($file->filepathinmod), // folder_name pt 2, 
 				csvsanitize($file->component), // folder_description, 
-				csvsanitize("{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]")  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
-
+				csvsanitize("{$file->cmid} [".pathinfo($file->filename, PATHINFO_EXTENSION)."]"),  //description // TODO: ??? (<f.filename>? filetype by extension? <cm.visible>? <cmid>?) 
+				$participantscount
 				 )
 			);
 		$h = $file->contenthash;
