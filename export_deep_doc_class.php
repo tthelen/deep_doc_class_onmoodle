@@ -26,7 +26,7 @@ $CFG->debugdisplay = true;
 define("OUTPUT_PATH", "/tmp");
 define("OUTPUT_CSV_FILENAME", "course_%s.csv");
 define("OUTPUT_LIST_FILENAME", "course_%s_files.txt");
-define("OUTPUT_CSV_HEADER", "system, document_id, filename, course_name, folder_name, folder_description, description, participants\n");
+define("OUTPUT_CSV_HEADER", "system, document_id, file_name, course_name, folder_name, folder_description, description, number_participants\n");
 
 /* aim: 
 A metadata csv (comma separated) file containing the following columns (please make sure that the values on the csv have no quotes)
