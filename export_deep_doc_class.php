@@ -26,7 +26,7 @@ $CFG->debugdisplay = true;
 define("OUTPUT_PATH", "/tmp");
 define("OUTPUT_CSV_FILENAME", "course_%s.csv");
 define("OUTPUT_LIST_FILENAME", "course_%s_files.txt");
-define("OUTPUT_CSV_HEADER", "system, document_id, file_name, course_name, folder_name, folder_description, description, number_participants\n");
+define("OUTPUT_CSV_HEADER", "document_id,file_name,course_name,folder_name,folder_description,description,number_participants\n");
 
 /* aim: 
 A metadata csv (comma separated) file containing the following columns (please make sure that the values on the csv have no quotes)
@@ -44,17 +44,22 @@ another "metadata" file containing names + preferred e-mail of teachers
 */
 
 // obtain courses (maybe starting at "last successful course", see below)
-$startingfrom = 1554069600; // Timestamp of April 1, 2019  0:00 CEST ( == Summer Term 2019)
-$courses = $DB->get_records_sql('select id from {course} where startdate >= :startingfrom', ['startingfrom' => $startingfrom]);
+$startingfrom = 1554069600; // Timestamp of April 1, 2019  0:00 CEST ( == Summer Term 2019, only consider courses that started before that date)
+$startingto = 1567202400; // Timestamp of August 31, 2019  0:00 CEST ( only consider courses that started before that date)
+
+$courses = $DB->get_records_sql('select id from {course} where startdate >= :startingfrom and startdate <= :startingto', ['startingfrom' => $startingfrom, 'startingto' => $startingto]);
 
 foreach ($courses as $course) {
 	$cid = $course->id;
 	$currentcourse = get_course($cid);
 	$ctx = context_course::instance($cid);
-	if (strpos($ctx->path, '/1/47/') === 0) {
-		// Skip courses from the "Schulungsbereich".
-		continue;
-	}
+
+	// filter for official courses (example below is from Münster to skip non-official courses)
+	//if (strpos($ctx->path, '/1/47/') === 0) {
+	//	// Skip courses from the "Schulungsbereich".
+	//	continue;
+	//}
+
 	// Get number of users enrolled in the course (but count only active ones == "zugriffsberechtigte Personen").
 	$participantscount = count_enrolled_users($ctx, '', 0, true);
 
@@ -120,7 +125,7 @@ foreach ($courses as $course) {
 		}
 
 		fwrite($fpcsv, 
-			sprintf("Moodle, %s, %s, %s, %s, [%s] %s, %s, %d\n",
+			sprintf("%s,%s,%s,%s,[%s]%s,%s,%d\n",
 				$file->contenthash, // document_id,
 				csvsanitize($file->filename), // filename,
 				csvsanitize($file->fullname), // course_name,
