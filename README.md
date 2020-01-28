@@ -2,9 +2,6 @@
 
 
 ## Prerequisites
-
-* Install Docker on your machine
-* Clone repository
 * Copy `export_deep_doc_class.php` into `MOODLEDIR/admin/cli/`
 
 ## Preparation (collect files on Moodle)
@@ -24,4 +21,9 @@ $ mv tmp/files /PATH/TO/DATADIR
 
 ## Execution of DeepDocClass
 
-Follow directions on https://github.com/luniki/docker_deep_doc_class
+Docker installation:
+* Install Docker on your machine
+* Follow directions on https://github.com/luniki/docker_deep_doc_class
+
+Manual installation:
+* Follow directions on https://github.com/Odrec/deep_doc_class (see section "KMK Test" for simple one command use)
